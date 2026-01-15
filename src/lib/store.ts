@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 type JobMode = 'frontend' | 'analyst' | 'manager' | null;
 type SimStatus = 'idle' | 'running' | 'paused' | 'panic';
@@ -14,17 +15,24 @@ interface SimulationState {
     resetPanic: () => void;
 }
 
-export const useSimulationStore = create<SimulationState>((set) => ({
-    job: null,
-    status: 'idle',
+export const useSimulationStore = create<SimulationState>()(
+    persist(
+        (set) => ({
+            job: null,
+            status: 'idle',
 
-    setJob: (job) => set({ job }),
-    setStatus: (status) => set({ status }),
+            setJob: (job) => set({ job }),
+            setStatus: (status) => set({ status }),
 
-    toggleSimulation: () => set((state) => ({
-        status: state.status === 'running' ? 'paused' : 'running'
-    })),
+            toggleSimulation: () => set((state) => ({
+                status: state.status === 'running' ? 'paused' : 'running'
+            })),
 
-    triggerPanic: () => set({ status: 'panic' }),
-    resetPanic: () => set({ status: 'idle' })
-}));
+            triggerPanic: () => set({ status: 'panic' }),
+            resetPanic: () => set({ status: 'idle' })
+        }),
+        {
+            name: 'lupin-simulation-storage',
+        }
+    )
+);
