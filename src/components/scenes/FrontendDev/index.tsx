@@ -7,6 +7,7 @@ import ActivityBar from './layout/ActivityBar';
 import Sidebar from './layout/Sidebar';
 import StatusBar from './layout/StatusBar';
 import TabBar from './layout/TabBar';
+import Taskbar from './layout/Taskbar';
 import { useGhostTyper } from '@/hooks/useGhostTyper';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { CODE_SNIPPETS, MOCK_SO_QUESTIONS } from '@/lib/simulation/content';
@@ -38,14 +39,24 @@ export default function FrontendDevScene() {
     const [isResizingTerminal, setIsResizingTerminal] = useState(false);
 
     // Browser Resize State
-    const [browserWidth, setBrowserWidth] = useState(400);
+    // Initial width set to 50% of window (handled in useEffect for strict hydration safety, or just default to half-ish)
+    const [browserWidth, setBrowserWidth] = useState(800); // Default to wider for 50:50 feel
     const [isResizingBrowser, setIsResizingBrowser] = useState(false);
+
+    // Fullscreen State for OS Simulation
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Initialize initial file
     useEffect(() => {
         const initial = generateFileContent('App.tsx');
         setFullContent(initial);
         setRevealedIndex(initial.length);
+
+        // Set initial browser width to 50% of available content space (Window - ActivityBar - Sidebar)
+        if (typeof window !== 'undefined') {
+            const availableWidth = window.innerWidth - 48 - 240; // 48px ActivityBar, 240px Default Sidebar
+            setBrowserWidth(Math.floor(availableWidth / 2));
+        }
     }, []);
 
     // Resize Handlers (Sidebar)
@@ -100,6 +111,40 @@ export default function FrontendDevScene() {
             window.removeEventListener('mouseup', stopResizingBrowser);
         };
     }, [isResizing, isResizingTerminal, isResizingBrowser, resize, stopResizing, stopResizingTerminal, stopResizingBrowser]);
+
+    // Handle Fullscreen Change (F11 detection via dimensions check + API check)
+    useEffect(() => {
+        const checkFullscreen = () => {
+            // Standard API check
+            const isApiFullscreen = !!document.fullscreenElement;
+
+            // F11 / Browser Native check (heuristic)
+            // We consider it fullscreen if the window size roughly matches the screen size
+            // Note: This isn't perfect on all multi-monitor setups but works for most single-screen F11 cases
+            const isWindowFullscreen =
+                (window.innerWidth === screen.width) &&
+                (window.innerHeight === screen.height);
+
+            // Also check for slight tolerance as some browsers have 1px borders
+            const widthDiff = Math.abs(window.innerWidth - screen.width);
+            const heightDiff = Math.abs(window.innerHeight - screen.height);
+            const isApproxFullscreen = widthDiff < 5 && heightDiff < 5;
+
+            setIsFullscreen(isApiFullscreen || isWindowFullscreen || isApproxFullscreen);
+        };
+
+        // Listen for both fullscreen API events and standard resize events
+        document.addEventListener('fullscreenchange', checkFullscreen);
+        window.addEventListener('resize', checkFullscreen);
+
+        // Check immediately on mount
+        checkFullscreen();
+
+        return () => {
+            document.removeEventListener('fullscreenchange', checkFullscreen);
+            window.removeEventListener('resize', checkFullscreen);
+        };
+    }, []);
 
 
     // When active file changes, load its new full content
@@ -176,7 +221,8 @@ export default function FrontendDevScene() {
     const displayedCode = fullContent.slice(0, revealedIndex);
 
     return (
-        <div className="flex flex-col h-screen w-full bg-[#1e1e1e] overflow-hidden">
+        <div className={`flex flex-col h-screen w-full bg-[#1e1e1e] overflow-hidden ${isFullscreen ? 'pb-[48px]' : ''}`}>
+            {/* Main Content Area - Shrinks usage height when Taskbar is present in fullscreen */}
             <div className="flex flex-1 overflow-hidden" onMouseUp={() => { stopResizing(); stopResizingTerminal(); stopResizingBrowser(); }}>
                 {/* Activity Bar */}
                 <ActivityBar activeView={activeView} onViewChange={setActiveView} />
@@ -219,7 +265,7 @@ export default function FrontendDevScene() {
                             ) : (
                                 <div className="h-full flex items-center justify-center text-gray-600">
                                     <div className="text-center">
-                                        <div className="text-6xl mb-4 opacity-20">Lupin</div>
+                                        <div className="text-6xl mb-4 opacity-20">Foo</div>
                                         <div>Select a file or create new one</div>
                                     </div>
                                 </div>
@@ -247,14 +293,17 @@ export default function FrontendDevScene() {
 
                 {/* Split Pane: Browser / Docs (Right Side) - Now properly separated */}
                 <div style={{ width: browserWidth, flexShrink: 0 }} className="flex flex-col bg-white">
-                    <FakeBrowser url="https://stackoverflow.com/questions/how-to-exit-vim">
+                    <FakeBrowser url="https://stuckoverflow.com/questions/how-to-exit-vim">
                         <StackOverflowContent />
                     </FakeBrowser>
                 </div>
             </div>
 
             {/* Status Bar */}
-            <StatusBar />
+            <StatusBar isOsMode={isFullscreen} onToggleOsMode={() => setIsFullscreen(!isFullscreen)} />
+
+            {/* Simulated OS Taskbar (Only visible in fullscreen) */}
+            {isFullscreen && <Taskbar osType="windows" />}
         </div>
     );
 }

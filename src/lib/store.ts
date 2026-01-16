@@ -32,7 +32,7 @@ export const useSimulationStore = create<SimulationState>()(
             resetPanic: () => set({ status: 'idle' })
         }),
         {
-            name: 'lupin-simulation-storage',
+            name: 'foo-simulation-storage',
         }
     )
 );

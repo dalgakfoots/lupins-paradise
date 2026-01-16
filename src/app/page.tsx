@@ -32,7 +32,7 @@ export default function LandingPage() {
           System V.1.0 Online
         </div>
         <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400 mb-6 tracking-tight">
-          Lupin's Paradise
+          Foo.io
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
           The ultimate <span className="text-green-400 font-semibold">work simulator</span>.
@@ -107,7 +107,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="text-gray-600 text-sm pb-8">
-        © {new Date().getFullYear()} Lupin's Paradise. Built for the art of looking busy.
+        © {new Date().getFullYear()} Foo.io. Built for the art of looking busy.
       </footer>
 
     </main>

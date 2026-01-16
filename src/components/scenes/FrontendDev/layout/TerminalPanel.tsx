@@ -12,9 +12,9 @@ export default function TerminalPanel() {
         'Microsoft Windows [Version 10.0.19045.4291]',
         '(c) Microsoft Corporation. All rights reserved.',
         '',
-        'D:\\projects\\lupins-paradise> npm run dev',
+        'D:\\projects\\foo-io> npm run dev',
         '',
-        '> lupins-paradise@0.1.0 dev',
+        '> foo-io@0.1.0 dev',
         '> vite',
         '',
         '  VITE v4.4.9  ready in 430 ms',
@@ -124,7 +124,7 @@ export default function TerminalPanel() {
                     <>
                         {terminalLogs.map((log, i) => <div key={i} className="whitespace-pre-wrap">{log}</div>)}
                         <div className="flex items-center mt-1">
-                            <span className="text-[#87d7f2]">D:\projects\lupins-paradise&gt;</span>
+                            <span className="text-[#87d7f2]">D:\projects\foo-io&gt;</span>
                             <span className="ml-2 w-2 h-4 bg-gray-400 animate-pulse"></span>
                         </div>
                     </>

@@ -1,7 +1,7 @@
 import { FileNode } from './types';
 
 export const REACT_PROJECT_structure: FileNode = {
-    name: 'LUPINS-PARADISE',
+    name: 'FOO.IO',
     type: 'folder',
     isOpen: true,
     children: [

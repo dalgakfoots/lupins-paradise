@@ -9,7 +9,8 @@ export default function PanicShield() {
     // We can use a local state to ensure it renders immediately on the client side without hydration mismatch if needed
     // But zustand is fine.
 
-    useEffect(() => {
+    // ESC key listener removed per user request (feature disabled)
+    /* useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 if (status === 'panic') {
@@ -22,7 +23,7 @@ export default function PanicShield() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status, triggerPanic, resetPanic]);
+    }, [status, triggerPanic, resetPanic]); */
 
     return (
         <AnimatePresence>
